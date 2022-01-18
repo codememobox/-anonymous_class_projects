@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Games Rating: 2015 - 2019</title>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+  <script type="text/javascript" src="../lib/d3-dsv.min.js"></script>
+</head>
+
+<body>
+
+  <div id="container">
+  </div>
+
+  <script>
+    var barSvg;
+    var ratingArray = [];
+    var dataArray = [];
+    var width1 = 1500;
+    var height1 = 900;
+    var padding = { top: 100, right: 100, bottom: 50, left: 100 };
+    var width2 = 1200;
+    var height2 = 900;
+    var yearArray = ['2015', '2016', '2017', '2018', '2019'];
+    var colorArray = ['#765338', '#bd6393', '#62695c', '#98a51e', '#18a8a1'];
+    var array_2015 = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0]];
+    var array_2016 = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0]];
+    var array_2017 = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0]];
+    var array_2018 = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0]];
+    var array_2019 = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0]];
+    var six_rating_2019 = [];
+
+    d3.csv("average-rating.csv").then(function (data) {
+      // console.log(data);
+
+      var lineSvg = d3.select('#container')
+        .append('svg')
+        .attr('width', width1 + 'px')
+        .attr('height', height1 + 'px');
+
+      var maxY = 0;
+      dataArray = data;
+      data.forEach(item => {
+        item.average_rating = Math.floor(parseFloat(item.average_rating));
+        switch (item.year) {
+          case '2015':
+            var count = array_2015[item.average_rating][1];
+            array_2015[item.average_rating][1] = count + 1;
+            if (count + 1 > maxY) {
+              maxY = count + 1;
+            }
+            break;
+          case '2016':
+            var count = array_2016[item.average_rating][1];
+            array_2016[item.average_rating][1] = count + 1;
+            if (count + 1 > maxY) {
+              maxY = count + 1;
+            }
+            break;
+          case '2017':
+            var count = array_2017[item.average_rating][1];
+            array_2017[item.average_rating][1] = count + 1;
+            if (count + 1 > maxY) {
+              maxY = count + 1;
+            }
+            break;
+          case '2018':
+            var count = array_2018[item.average_rating][1];
+            array_2018[item.average_rating][1] = count + 1;
+            if (count + 1 > maxY) {
+              maxY = count + 1;
+            }
+            break;
+          case '2019':
+            var count = array_2019[item.average_rating][1];
+            array_2019[item.average_rating][1] = count + 1;
+            if (count + 1 > maxY) {
+              maxY = count + 1;
+            }
+            break;
+          default:
+            break;
+        }
+      });
+
+      var xScale = d3.scaleLinear()
+        .domain([0, 9])
+        .range([0, 1350]);
+      var yScale = d3.scaleLinear()
+        .domain([0, maxY])
+        .range([750, 0]);
+
+      var linePath = d3.line()
+        .x(function (d) { return xScale(d[0]) })
+        .y(function (d) { return yScale(d[1]) });
+
+      var xAxis = d3.axisBottom()
+        .scale(xScale);
+
+      var yAxis = d3.axisLeft()
+        .scale(yScale);
+
+      var sort2019Rating = function (a, b) {
+        return parseInt(b.users_rated) - parseInt(a.users_rated);
+      }
+
+      var showbar = function (year, rating) {
+        var rating_array = [];
+
+        dataArray.forEach(item => {
+          item.average_rating = Math.floor(parseFloat(item.average_rating));
+          switch (year) {
+            case '2015':
+              if (item.average_rating == rating && item.year == '2015') {
+                rating_array.push(item);
+              }
+              break;
+            case '2016':
+              if (item.average_rating == rating && item.year == '2016') {
+                rating_array.push(item);
+              }
+              break;
+            case '2017':
+              if (item.average_rating == rating && item.year == '2017') {
+                rating_array.push(item);
+              }
+              break;
+            case '2018':
+              if (item.average_rating == rating && item.year == '2018') {
+                rating_array.push(item);
+              }
+              break;
+            case '2019':
+              if (item.average_rating == rating && item.year == '2019') {
+                rating_array.push(item);
+              }
+              break;
+            default:
+              break;
+          }
+        });
+
+        rating_array.sort(sort2019Rating);
+
+        var five_array = [];
+        var length = rating_array.length > 5 ? 5 : rating_array.length;
+        for (let i = 0; i < length; i++) {
+          five_array.push(rating_array[i]);
+        }
+
+        if (five_array.length == 0) {
+          return;
+        }
+
+        five_array = five_array.reverse();
+
+        const config = {
+          barPadding: 0.3,
+          barColor: '#b63ea9',
+          margins: { top: 80, left: 80, bottom: 50, right: 80 },
+          textColor: 'black',
+          gridColor: 'gray',
+          tickShowGrid: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 9000, 10000, 12000, 14000, 15000, 16000, 18000, 20000, 22000, 24000, 25000, 30000, 35000, 40000, 45000, 50000],
+          title: 'Top 5 Most Rated Games of ' + year + ' with Rating ' + rating,
+          hoverColor: 'white',
+          animateDuration: 1000
+        }
+
+        var barScaleX = d3.scaleBand()
+          .domain(five_array.map((d) => d.name))
+          .range([750, 0])
+          .padding(0.3);
+
+        var barScaleY = d3.scaleLinear()
+          .domain([0, d3.max(five_array, (d) => d.users_rated)])
+          .range([0, 1000]);
+
+        barSvg = d3.select('#container')
+          .append('svg')
+          .attr('id', 'barchart')
+          .attr('width', '1200px')
+          .attr('height', '900px');
+
+        barSvg.append('g')
+          .attr('id', 'bars')
+          .selectAll('rect')
+          .data(five_array)
+          .enter()
+          .append('rect')
+          .attr('x', barScaleY(0) + 200)
+          .attr('y', (d) => barScaleX(d.name) + padding.top)
+          .attr('height', barScaleX.bandwidth())
+          .attr('fill', config.barColor)
+          .attr('width', (d) => barScaleY(d.users_rated));
+
+        barSvg.append('g')
+          .attr('id', 'x-axis-bars')
+          .attr('transform', 'translate(200,100)')
+          .attr('class', 'xAxis')
+          .call(d3.axisLeft(barScaleX));
+
+        barSvg.append('g')
+          .attr('id', 'y-axis-bars')
+          .attr('transform', 'translate(200,850)')
+          .attr('class', 'yAxis')
+          .call(d3.axisBottom(barScaleY));
+
+        d3.selectAll('.yAxis .tick')
+          .each(function (d) {
+            if (config.tickShowGrid.indexOf(d) > -1) {
+              d3.select(this).append('line')
+                .attr('class', 'grid')
+                .attr('stroke', '#000')
+                .attr('x1', 0)
+                .attr('y1', 0)
+                .attr('x2', 0)
+                .attr('y2', -750);
+            }
+          });
+
+        barSvg.append('g')
+          .attr('id', 'bar_chart_title')
+          .append("text")
+          .attr("x", (width2 / 2))
+          .attr("y", 0 + (padding.top / 2))
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .text(config.title);
+
+        barSvg.append('g')
+          .attr('id', 'credit')
+          .append("text")
+          .attr("x", (width2 / 2))
+          .attr("y", 20 + (padding.top / 2))
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .style("fill", '#0000ff')
+          .text("azhou90");
+
+        barSvg.append('g')
+          .attr('id', 'bar_x_axis_label')
+          .append("text")
+          .attr("transform",
+            "translate(" + (width2 / 2) + " ," +
+            (height2 - 10) + ")")
+          .style("text-anchor", "middle")
+          .text("Number of users");
+
+        barSvg
+          .append('g')
+          .attr('id', 'bar_y_axis_label')
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 12)
+          .attr("x", 0 - (height2 / 2))
+          .style("text-anchor", "middle")
+          .text("Games");
+      }
+
+      var handleMouseOver2015 = function (d, i) {  // Add interactivity
+
+        // Use D3 to select element, change color and size
+        d3.select(this)
+          .attr("r", 10);
+
+        d3.select('#barchart')
+          .remove();
+
+        showbar('2015', i);
+
+      }
+
+      var handleMouseOut2015 = function (d, i) {
+        // Use D3 to select element, change color back to normal
+        d3.select(this)
+          .attr("r", 5);
+
+        barSvg.selectAll("*")
+          .style("display", "none");
+
+      }
+
+      var handleMouseOver2016 = function (d, i) {  // Add interactivity
+
+        // Use D3 to select element, change color and size
+        d3.select(this)
+          .attr("r", 10);
+
+        d3.select('#barchart')
+          .remove();
+
+        showbar('2016', i);
+
+      }
+
+      var handleMouseOut2016 = function (d, i) {
+        // Use D3 to select element, change color back to normal
+        d3.select(this)
+          .attr("r", 5);
+
+        barSvg.selectAll("*")
+          .style("display", "none");
+      }
+
+      var handleMouseOver2017 = function (d, i) {  // Add interactivity
+
+        // Use D3 to select element, change color and size
+        d3.select(this)
+          .attr("r", 10);
+
+        d3.select('#barchart')
+          .remove();
+
+        showbar('2017', i);
+
+      }
+
+      var handleMouseOut2017 = function (d, i) {
+        // Use D3 to select element, change color back to normal
+        d3.select(this)
+          .attr("r", 5);
+
+        barSvg.selectAll("*")
+          .style("display", "none");
+      }
+
+      var handleMouseOver2018 = function (d, i) {  // Add interactivity
+
+        // Use D3 to select element, change color and size
+        d3.select(this)
+          .attr("r", 10);
+
+        d3.select('#barchart')
+          .remove();
+
+        showbar('2018', i);
+
+      }
+
+      var handleMouseOut2018 = function (d, i) {
+        // Use D3 to select element, change color back to normal
+        d3.select(this)
+          .attr("r", 5);
+
+        barSvg.selectAll("*")
+          .style("display", "none");
+      }
+
+      var handleMouseOver2019 = function (d, i) {  // Add interactivity
+
+        // Use D3 to select element, change color and size
+        d3.select(this)
+          .attr("r", 10);
+
+        d3.select('#barchart')
+          .remove();
+
+        showbar('2019', i);
+
+      }
+
+      var handleMouseOut2019 = function (d, i) {
+        // Use D3 to select element, change color back to normal
+        d3.select(this)
+          .attr("r", 5);
+
+
+        barSvg.selectAll("*")
+          .style("display", "none");
+
+      }
+
+      lineSvg.append('g')
+        .attr('id', 'lines')
+        .append('path')
+        .attr('class', 'line-path')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .attr('d', linePath(array_2015))
+        .attr('fill', 'none')
+        .attr('stroke-width', 2)
+        .attr('stroke', colorArray[0]);
+
+      lineSvg.append('g')
+        .attr('id', 'x-axis-lines')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(' + padding.left + ',' + (height1 - padding.bottom) + ')')
+        .call(xAxis);
+
+      lineSvg.append('g')
+        .attr('id', 'y-axis-lines')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .call(yAxis);
+
+      lineSvg.append('g')
+        .attr('id', 'circles')
+        .selectAll('circle')
+        .data(array_2015)
+        .enter()
+        .append('circle')
+        .attr('r', 5)
+        .attr('cx', function (d) { return xScale(d[0]) + padding.left })
+        .attr('cy', function (d) { return yScale(d[1]) + padding.top })
+        // .attr('transform', function (d) {
+        //   return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+        // })
+        .attr('fill', colorArray[0])
+        .on("mouseover", handleMouseOver2015)
+        .on("mouseout", handleMouseOut2015);
+
+      lineSvg.append('g')
+        .attr('id', 'line_chart_title')
+        .append("text")
+        .attr("x", (width1 / 2))
+        .attr("y", 0 + (padding.top / 2))
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("Board games by Rating 2015-2019");
+
+      lineSvg.append('g')
+        .attr('id', 'credit')
+        .append("text")
+        .attr("x", (width1 / 2))
+        .attr("y", 20 + (padding.top / 2))
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("fill", '#0000ff')
+        .text("azhou90");
+
+      lineSvg.append('g')
+        .attr('id', 'legend')
+        .selectAll('circle')
+        .data(yearArray)
+        .enter()
+        .append("circle")
+        .attr('r', 5)
+        .attr("cx", width1 - 100)
+        .attr("cy", function (d, i) { return 100 + i * 25 })
+        .style("fill", function (d, i) { return colorArray[i] })
+
+
+      lineSvg.select('#legend')
+        .selectAll("#legend")
+        .data(yearArray)
+        .enter()
+        .append("text")
+        .attr("x", width1 - 80)
+        .attr("y", function (d, i) { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
+        .style("fill", function (d, i) { return colorArray[i] })
+        .text(function (d) { return d })
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+
+      lineSvg.append("text")
+        .attr("transform",
+          "translate(" + (width1 / 2) + " ," +
+          (height1 - 10) + ")")
+        .style("text-anchor", "middle")
+        .text("Rating");
+
+      lineSvg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 12)
+        .attr("x", 0 - (height1 / 2))
+        .style("text-anchor", "middle")
+        .text("Count");
+
+      lineSvg.select('#lines')
+        .append('path')
+        .attr('class', 'line-path')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .attr('d', linePath(array_2016))
+        .attr('fill', 'none')
+        .attr('stroke-width', 2)
+        .attr('stroke', colorArray[1]);
+
+
+      lineSvg.select('#circles')
+        .selectAll('#circles')
+        .data(array_2016)
+        .enter()
+        .append('circle')
+        .attr('r', 5)
+        .attr('cx', function (d) { return xScale(d[0]) + padding.left })
+        .attr('cy', function (d) { return yScale(d[1]) + padding.top })
+        // .attr('transform', function (d) {
+        //   return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+        // })
+        .attr('fill', colorArray[1])
+        .on("mouseover", handleMouseOver2016)
+        .on("mouseout", handleMouseOut2016);
+
+      lineSvg.select('#lines')
+        .append('path')
+        .attr('class', 'line-path')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .attr('d', linePath(array_2017))
+        .attr('fill', 'none')
+        .attr('stroke-width', 2)
+        .attr('stroke', colorArray[2]);
+
+      lineSvg.select('#circles')
+        .selectAll('#circles')
+        .data(array_2017)
+        .enter()
+        .append('circle')
+        .attr('r', 5)
+        .attr('cx', function (d) { return xScale(d[0]) + padding.left })
+        .attr('cy', function (d) { return yScale(d[1]) + padding.top })
+        // .attr('transform', function (d) {
+        //   return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+        // })
+        .attr('fill', colorArray[2])
+        .on("mouseover", handleMouseOver2017)
+        .on("mouseout", handleMouseOut2017);
+
+      lineSvg.select('#lines')
+        .append('path')
+        .attr('class', 'line-path')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .attr('d', linePath(array_2018))
+        .attr('fill', 'none')
+        .attr('stroke-width', 2)
+        .attr('stroke', colorArray[3]);
+
+      lineSvg.select('#circles')
+        .selectAll('#circles')
+        .data(array_2018)
+        .enter()
+        .append('circle')
+        .attr('r', 5)
+        .attr('cx', function (d) { return xScale(d[0]) + padding.left })
+        .attr('cy', function (d) { return yScale(d[1]) + padding.top })
+        // .attr('transform', function (d) {
+        //   return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+        // })
+        .attr('fill', colorArray[3])
+        .on("mouseover", handleMouseOver2018)
+        .on("mouseout", handleMouseOut2018);
+
+      lineSvg.select('#lines')
+        .append('path')
+        .attr('class', 'line-path')
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+        .attr('d', linePath(array_2019))
+        .attr('fill', 'none')
+        .attr('stroke-width', 2)
+        .attr('stroke', colorArray[4]);
+
+      lineSvg.select('#circles')
+        .selectAll('#circles')
+        .data(array_2019)
+        .enter()
+        .append('circle')
+        .attr('r', 5)
+        .attr('cx', function (d) { return xScale(d[0]) + padding.left })
+        .attr('cy', function (d) { return yScale(d[1]) + padding.top })
+        // .attr('transform', function (d) {
+        //   return 'translate(' + (xScale(d[0]) + padding.left) + ',' + (yScale(d[1]) + padding.top) + ')'
+        // })
+        .attr('fill', colorArray[4])
+        .on("mouseover", handleMouseOver2019)
+        .on("mouseout", handleMouseOut2019);
+
+      // showbar('2016', 6);
+
+
+
+    })
+
+
+
+
+  </script>
+
+</body>
